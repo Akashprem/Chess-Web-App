@@ -4,7 +4,7 @@ import { fromCN, toCN } from '/js/CN.js';
 import { checkCheck, checkCheckMate, checkStaleMate } from '/js/check.js';
 
 // Initialize The Board:
-let allPieces = [], turn = 'white', selected = null;
+export let allPieces = [], turn = 'white', selected = null;
 
 allPieces.push(new Bishop('white', 'c1'));
 allPieces.push(new Bishop('white', 'f1'));
@@ -143,8 +143,18 @@ function makeMove(piece, i, j) {
     }
     if ((piece.type === 'Pawn') && (board[i][j] === '') && (j !== piece.col)) {
         // Capture for En Passant Move:
-        if (piece.color === 'white') board[i+1][j] = '';
-        if (piece.color === 'black') board[i-1][j] = '';
+        let capturedPiece;
+        if (piece.color === 'white') {
+            capturedPiece = board[i+1][j];
+            board[i+1][j] = '';
+        }
+        if (piece.color === 'black') {
+            capturedPiece = board[i-1][j];
+            board[i-1][j] = '';
+        }
+        let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
+        let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
+        allPieces = left.concat(right);
     }
     board[piece.square] = '';
     board[i][j] = piece;
@@ -155,6 +165,51 @@ function makeMove(piece, i, j) {
     toggleMoves(selected);
     selected = null;
     document.querySelectorAll('.legalMoves').forEach(cell => cell.classList.remove('legalMoves'));
+    
+    // Checking for Pawn Promotion
+    if ((piece.type === 'Pawn') && ((piece.row === 0) || (piece.row === 7))) {
+        let newDialog = document.createElement('dialog');
+        let askForPiece = document.createElement('p');
+        askForPiece.innerText = 'Select which piece you want to promote as?';
+        newDialog.appendChild(askForPiece);
+        let options = [
+            {'name': 'Bishop'},
+            {'name': 'Queen'},
+            {'name': 'Rook'},
+            {'name': 'Knight'}
+        ];
+        options.forEach(option => {
+            let button = document.createElement('button');
+            button.innerText = option.name;
+            newDialog.appendChild(button);
+            option.button = button;
+        });
+        document.body.appendChild(newDialog);
+        newDialog.show();
+        let promotedPiece;
+        options.forEach(option => {
+            option.button.addEventListener('click', () => {
+                switch(option.name) {
+                    case 'Bishop': promotedPiece = new Bishop(piece.color, piece.square); break;
+                    case 'Queen': promotedPiece = new Queen(piece.color, piece.square); break;
+                    case 'Rook': promotedPiece = new Rook(piece.color, piece.square); break;
+                    case 'Knight': promotedPiece = new Knight(piece.color, piece.square); break;
+                }
+                newDialog.close();
+                promotedPiece.imageSrc = '/images/' + piece.color + '-' + option.name + '.png';
+                allPieces.push(promotedPiece);
+                board[piece.square] = promotedPiece;
+                let left = allPieces.slice(0, allPieces.indexOf(piece));
+                let right = allPieces.slice(allPieces.indexOf(piece)+1);
+                allPieces = left.concat(right);
+                drawBoard();
+                checkCheck(allPieces);
+                setTimeout(() => checkStaleMate(allPieces), 0);
+                setTimeout(() => checkCheckMate(allPieces), 0);
+            });
+        });
+    }
+
     drawBoard();
     checkCheck(allPieces);
     setTimeout(() => checkStaleMate(allPieces), 0);
