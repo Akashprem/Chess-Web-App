@@ -1,4 +1,4 @@
-import { toCN } from '/CN.js';
+import { toCN } from '/js/CN.js';
 
 export let board = new Array(8);
 for (let i=0; i<8; i++) {

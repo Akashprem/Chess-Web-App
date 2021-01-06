@@ -1,5 +1,5 @@
-import { fromCN, toCN } from '/CN.js';
-import { board } from '/board.js';
+import { fromCN, toCN } from '/js/CN.js';
+import { board } from '/js/board.js';
 
 export let pawnInitialSquares = {};
 pawnInitialSquares['white'] = ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'];

@@ -1,9 +1,11 @@
-import { Bishop, Rook, Queen, Knight, King, Pawn, pawnInitialSquares } from '/piece.js';
-import { board, HTMLboard } from '/board.js';
-import { fromCN, toCN } from '/CN.js';
+import { Bishop, Rook, Queen, Knight, King, Pawn, pawnInitialSquares } from '/js/piece.js';
+import { board, HTMLboard } from '/js/board.js';
+import { fromCN, toCN } from '/js/CN.js';
+import { checkCheck, checkCheckMate, checkStaleMate } from '/js/check.js';
 
 // Initialize The Board:
-export let allPieces = [];
+let allPieces = [], turn = 'white', selected = null;
+
 allPieces.push(new Bishop('white', 'c1'));
 allPieces.push(new Bishop('white', 'f1'));
 allPieces.push(new Bishop('black', 'c8'));
@@ -29,9 +31,6 @@ allPieces.forEach(elem => {
     board[elem.square] = elem;
     elem.imageSrc = '/images/' + elem.color + '-' + elem.type + '.png';
 });
-
-export let turn = 'white';
-export let selected = null;
 
 function drawBoard() {
     allPieces.forEach(elem => elem.updateLegalMoves());
@@ -112,7 +111,11 @@ HTMLboard.addEventListener('click', e => {
             let currentPiece = board[Number(selected.id[0])][Number(selected.id[2])];
             let move_i = Number(cur.parentElement.id[0]);
             let move_j = Number(cur.parentElement.id[2]);
+            let capturedPiece = board[move_i][move_j];
             makeMove(currentPiece, move_i, move_j);
+            let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
+            let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
+            allPieces = left.concat(right);
             e.stopPropagation();
         }
     }
@@ -141,4 +144,7 @@ function makeMove(piece, i, j) {
     selected = null;
     document.querySelectorAll('.legalMoves').forEach(cell => cell.classList.remove('legalMoves'));
     drawBoard();
+    checkCheck(allPieces);
+    setTimeout(() => checkStaleMate(allPieces), 0);
+    setTimeout(() => checkCheckMate(allPieces), 0);
 }
