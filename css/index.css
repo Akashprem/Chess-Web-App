@@ -1,0 +1,106 @@
+:root {
+    --cell-size: 5vmax;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.play-area {
+    position: absolute;
+    margin: 0; top: 0; bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    user-select: none;
+}
+
+.fast-spin {
+    -webkit-animation: fa-spin 1.5s infinite linear;
+    animation: fa-spin 1.5s infinite linear;
+}
+
+.board {
+    cursor: pointer;
+    display: none; /* gets changed to display: flex; in javascript */
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+}
+
+.cell {
+    position: relative;
+    height: var(--cell-size);
+    width: var(--cell-size);
+}
+
+img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    height: 90%;
+}
+
+img.Knight {
+    height: 93%;
+}
+
+img.Rook {
+    width: 80%
+}
+
+img.Pawn {
+    width: 65%;
+}
+
+.cell.selected {
+    background-color: rgba(255, 215, 0, 0.5);
+}
+
+.cell.legalMoves span {
+    height: 35%;
+    width: 35%;
+    background-color: rgb(250, 110, 0);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.border-U {
+    border-top: 3px solid black;
+}
+
+.border-u {
+    border-top: 1px solid black;
+}
+
+.border-D {
+    border-bottom: 3px solid black;
+}
+
+.border-d {
+    border-bottom: 1px solid black;
+}
+
+.border-L {
+    border-left: 3px solid black;
+}
+
+.border-l {
+    border-left: 1px solid black;
+}
+
+.border-R {
+    border-right: 3px solid black;
+}
+
+.border-r {
+    border-right: 1px solid black;
+}
