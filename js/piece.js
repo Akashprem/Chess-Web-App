@@ -348,6 +348,7 @@ export class Pawn extends Piece {
     constructor(color, square) {
         super(color, square);
         this.type = 'Pawn';
+        this.enpassant = false;
     }
 
     updateLegalMoves() {
@@ -380,6 +381,40 @@ export class Pawn extends Piece {
             if ((board[p1i][p1j+1] !== '') && (board[p1i][p1j+1].color !== this.color))
                 if (!this.kingCheck(toCN(p1i, p1j+1)))
                     this.legalMoves.push(toCN(p1i, p1j+1));
+        
+        // Pawn En Passant Move:
+        if (valid(p1i, p1j-1) && (valid(this.row, p1j-1))) {
+            if ((board[this.row][p1j-1] !== '') && (board[this.row][p1j-1].color !== this.color)) {
+                if ((board[this.row][p1j-1].type === 'Pawn') && (board[this.row][p1j-1].enpassant)) {
+                    if (board[p1i][p1j-1] === '') {
+                        let enPassantPawn = board[this.row][p1j-1];
+                        board[this.row][this.col] = '';
+                        board[this.row][p1j-1] = '';
+                        board[p1i][p1j-1] = this;
+                        if(!this.kingCheck('')) this.legalMoves.push(toCN(p1i, p1j-1));
+                        board[this.row][this.col] = this;
+                        board[this.row][p1j-1] = enPassantPawn;
+                        board[p1i][p1j-1] = '';
+                    }
+                }
+            }
+        }
+        if (valid(p1i, p1j+1) && (valid(this.row, p1j+1))) {
+            if ((board[this.row][p1j+1] !== '') && (board[this.row][p1j+1].color !== this.color)) {
+                if ((board[this.row][p1j+1].type === 'Pawn') && (board[this.row][p1j+1].enpassant)) {
+                    if (board[p1i][p1j+1] === '') {
+                        let enPassantPawn = board[this.row][p1j+1];
+                        board[this.row][this.col] = '';
+                        board[this.row][p1j+1] = '';
+                        board[p1i][p1j+1] = this;
+                        if(!this.kingCheck('')) this.legalMoves.push(toCN(p1i, p1j+1));
+                        board[this.row][this.col] = this;
+                        board[this.row][p1j+1] = enPassantPawn;
+                        board[p1i][p1j+1] = '';
+                    }
+                }
+            }
+        }
         
         this.legalMoves = [...new Set(this.legalMoves)];
     }

@@ -134,6 +134,18 @@ function toggleTurn() {
 }
 
 function makeMove(piece, i, j) {
+    allPieces.forEach(elem => {
+        if ((elem.color === piece.color) && (elem.type === 'Pawn'))
+            elem.enpassant = false;
+    });
+    if ((piece.type === 'Pawn') && (Math.abs(piece.row - i) === 2)) {
+        piece.enpassant = true;
+    }
+    if ((piece.type === 'Pawn') && (board[i][j] === '') && (j !== piece.col)) {
+        // Capture for En Passant Move:
+        if (piece.color === 'white') board[i+1][j] = '';
+        if (piece.color === 'black') board[i-1][j] = '';
+    }
     board[piece.square] = '';
     board[i][j] = piece;
     piece.square = toCN(i, j);
