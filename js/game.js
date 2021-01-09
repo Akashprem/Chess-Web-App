@@ -4,7 +4,7 @@ import { fromCN, toCN } from '/js/CN.js';
 import { checkCheck, checkCheckMate, checkStaleMate } from '/js/check.js';
 
 // Initialize The Board:
-export let allPieces = [], turn = 'white', selected = null;
+export let allPieces = [], turn = 'white', selected = null, capture = false, pawnMove = false;
 
 allPieces.push(new Bishop('white', 'c1'));
 allPieces.push(new Bishop('white', 'f1'));
@@ -134,6 +134,13 @@ function toggleTurn() {
 export function makeMove(board, piece, i, j, draw=true) {
     let capturedPiece = null, castling = null;
 
+    // For the 50 Move Rule:
+    capture = false;
+    pawnMove = false;
+    if (piece.type === 'Pawn') {
+        pawnMove = true;
+    }
+
     // Checking for Castling
     if ((piece.type === 'King') && (Math.abs(piece.col - j) === 2)) {
         castling = true;
@@ -158,7 +165,6 @@ export function makeMove(board, piece, i, j, draw=true) {
 
     if ((piece.type === 'Pawn') && (board[i][j] === '') && (j !== piece.col)) {
         // Capture for En Passant Move:
-        let capturedPiece;
         if (piece.color === 'white') {
             capturedPiece = board[i+1][j];
             board[i+1][j] = '';
@@ -167,9 +173,6 @@ export function makeMove(board, piece, i, j, draw=true) {
             capturedPiece = board[i-1][j];
             board[i-1][j] = '';
         }
-        let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
-        let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
-        allPieces = left.concat(right);
     }
 
     board[piece.square] = '';
@@ -245,6 +248,7 @@ export function makeMove(board, piece, i, j, draw=true) {
     }
 
     if (capturedPiece) {
+        capture = true;
         let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
         let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
         allPieces = left.concat(right);

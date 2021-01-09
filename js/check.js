@@ -1,3 +1,8 @@
+import { board } from '/js/board.js'
+import { capture, pawnMove } from '/js/game.js'
+
+export let boardsHistory = {}, move = 0;
+
 export function checkCheck(allPieces) {
     let color = null;
     allPieces.forEach(piece => {
@@ -37,9 +42,36 @@ export function checkStaleMate(allPieces) {
             moveExists[piece.color] = true;
         }
     });
+
     let checkedKingColor = checkCheck(allPieces);
     if (!checkedKingColor && !(moveExists['white'] && moveExists['black'])) {
         alert('Stalemate!!!');
+        location.reload();
+    }
+
+    // Check for 3 Repeated Positions:
+    if (boardsHistory[JSON.stringify(board)]) {
+        boardsHistory[JSON.stringify(board)] += 1;
+    }
+    else {
+        boardsHistory[JSON.stringify(board)] = 1;
+    }
+    Object.keys(boardsHistory).forEach(key => {
+        if (boardsHistory[key] >= 3) {
+            alert('Stalemate by 3-fold repetition!!!');
+            location.reload();
+        }
+    })
+
+    // Check for 50 Move Rule:
+    if (!(capture || pawnMove)) {
+        move += 1;
+    }
+    else {
+        move = 0;
+    }
+    if (move === 50*2) {
+        alert('Stalemate by 50 move rule!!!');
         location.reload();
     }
 }
