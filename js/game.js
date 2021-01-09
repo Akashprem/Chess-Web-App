@@ -38,7 +38,7 @@ function drawBoard() {
         for (let j=0; j<8; j++) {
             document.getElementById(String(i)+' '+String(j)).innerHTML = '';
             let cell = document.getElementById(String(i)+' '+String(j)).parentElement;
-            if ((i+j)%2) cell.style.backgroundColor = 'rgb(232, 235, 239, 0.5)';
+            if (!((i+j)%2)) cell.style.backgroundColor = 'rgb(232, 235, 239, 0.5)';
             else cell.style.backgroundColor = 'rgb(125, 135, 150, 0.5)';
         }
     }
@@ -60,21 +60,23 @@ function drawBoard() {
 drawBoard();
 
 function toggleMoves(cur) {
-    cur.parentElement.classList.toggle('selected');
-    let legalMoves = board[Number(cur.id[0])][Number(cur.id[2])].legalMoves;
-    if (legalMoves) {
-        legalMoves.forEach(CN => {
-            let i = fromCN(CN)[0];
-            let j = fromCN(CN)[1];
-            let cell = document.getElementById(String(i)+' '+String(j)).parentElement
-            cell.classList.toggle('legalMoves');
-            if (cell.classList.contains('legalMoves')) {
-                cell.appendChild(document.createElement('span'));
-            }
-            else {
-                cell.removeChild(cell.children[1]);
-            }
-        })
+    if (cur) {
+        cur.parentElement.classList.toggle('selected');
+        let legalMoves = board[Number(cur.id[0])][Number(cur.id[2])].legalMoves;
+        if (legalMoves) {
+            legalMoves.forEach(CN => {
+                let i = fromCN(CN)[0];
+                let j = fromCN(CN)[1];
+                let cell = document.getElementById(String(i)+' '+String(j)).parentElement
+                cell.classList.toggle('legalMoves');
+                if (cell.classList.contains('legalMoves')) {
+                    cell.appendChild(document.createElement('span'));
+                }
+                else {
+                    cell.removeChild(cell.children[1]);
+                }
+            })
+        }
     }
 }
 
@@ -91,7 +93,7 @@ HTMLboard.addEventListener('click', e => {
                 let currentPiece = board[Number(selected.id[0])][Number(selected.id[2])];
                 let move_i = Number(cur.id[0]);
                 let move_j = Number(cur.id[2]);
-                makeMove(currentPiece, move_i, move_j);
+                makeMove(board, currentPiece, move_i, move_j);
                 e.stopPropagation();
             }
         }
@@ -111,11 +113,7 @@ HTMLboard.addEventListener('click', e => {
             let currentPiece = board[Number(selected.id[0])][Number(selected.id[2])];
             let move_i = Number(cur.parentElement.id[0]);
             let move_j = Number(cur.parentElement.id[2]);
-            let capturedPiece = board[move_i][move_j];
-            makeMove(currentPiece, move_i, move_j);
-            let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
-            let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
-            allPieces = left.concat(right);
+            makeMove(board, currentPiece, move_i, move_j);
             e.stopPropagation();
         }
     }
@@ -133,14 +131,31 @@ function toggleTurn() {
     turn = (turn === 'black') ? 'white' : 'black';
 }
 
-function makeMove(piece, i, j) {
+export function makeMove(board, piece, i, j, draw=true) {
+    let capturedPiece = null, castling = null;
+
+    // Checking for Castling
+    if ((piece.type === 'King') && (Math.abs(piece.col - j) === 2)) {
+        castling = true;
+    }
+
+    if (board[i][j] !== '') {
+        capturedPiece = board[i][j];
+    }
+
+    if (piece.type === 'Rook' || piece.type === 'King') {
+        piece.hasMoved = true;
+    }
+
     allPieces.forEach(elem => {
         if ((elem.color === piece.color) && (elem.type === 'Pawn'))
             elem.enpassant = false;
     });
+    
     if ((piece.type === 'Pawn') && (Math.abs(piece.row - i) === 2)) {
         piece.enpassant = true;
     }
+
     if ((piece.type === 'Pawn') && (board[i][j] === '') && (j !== piece.col)) {
         // Capture for En Passant Move:
         let capturedPiece;
@@ -156,6 +171,7 @@ function makeMove(piece, i, j) {
         let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
         allPieces = left.concat(right);
     }
+
     board[piece.square] = '';
     board[i][j] = piece;
     piece.square = toCN(i, j);
@@ -202,15 +218,25 @@ function makeMove(piece, i, j) {
                 let left = allPieces.slice(0, allPieces.indexOf(piece));
                 let right = allPieces.slice(allPieces.indexOf(piece)+1);
                 allPieces = left.concat(right);
-                drawBoard();
+                if (draw) drawBoard();
                 checkCheck(allPieces);
                 setTimeout(() => checkStaleMate(allPieces), 0);
                 setTimeout(() => checkCheckMate(allPieces), 0);
             });
         });
     }
+    
+    // Checking for Castling
+    if (castling) {
+        if (j === 2) console.log(board[i][j-2], i, j+1);
+        if (j === 6) console.log(board[i][j+1], i, j-1);
+    }
 
-    drawBoard();
+    let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
+    let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
+    allPieces = left.concat(right);
+
+    if (draw) drawBoard();
     checkCheck(allPieces);
     setTimeout(() => checkStaleMate(allPieces), 0);
     setTimeout(() => checkCheckMate(allPieces), 0);

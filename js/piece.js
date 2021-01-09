@@ -257,6 +257,7 @@ export class Rook extends Piece {
     constructor(color, square) {
         super(color, square);
         this.type = 'Rook';
+        this.hasMoved = false;
     }
 
     updateLegalMoves() {
@@ -324,6 +325,7 @@ export class King extends Piece {
     constructor(color, square) {
         super(color, square);
         this.type = 'King';
+        this.hasMoved = false;
     }
 
     updateLegalMoves() {
@@ -339,6 +341,18 @@ export class King extends Piece {
         this.addLegalMove(i-1, j+1);
         this.addLegalMove(i-1, j);
         this.addLegalMove(i-1, j-1);
+
+        // Checking whether Castling is Legal:
+        if (!this.hasMoved)
+            if (valid(i, j+3) && !board[i][j+3].hasMoved)
+                if (board[i][j+1] === '' && board[i][j+2] === '')
+                    if (!this.kingCheck('') && !this.kingCheck(toCN(i, j+1)))
+                        this.addLegalMove(i, j+2);
+        if (!this.hasMoved)
+            if (valid(i, j-4) && !board[i][j-4].hasMoved)
+                if (board[i][j-1] === '' && board[i][j-2] === '' && board[i][j-3] === '')
+                    if (!this.kingCheck('') && !this.kingCheck(toCN(i, j-1)))
+                        this.addLegalMove(i, j-2);
 
         this.legalMoves = [...new Set(this.legalMoves)];
     }
