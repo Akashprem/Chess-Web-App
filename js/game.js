@@ -228,9 +228,20 @@ export function makeMove(board, piece, i, j, draw=true) {
     
     // Checking for Castling
     if (castling) {
-        if (j === 2) makeMove(board, board[i][j-2], i, j+1);
-        if (j === 6) makeMove(board, board[i][j+1], i, j-1);
-        toggleTurn();
+        if (j === 2) {
+            board[i][j+1] = board[i][j-2];
+            board[i][j-2] = '';
+            board[i][j+1].row = i;
+            board[i][j+1].col = j+1;
+            board[i][j+1].square = toCN(i, j+1);
+        }
+        if (j === 6) {
+            board[i][j-1] = board[i][j+1];
+            board[i][j+1] = '';
+            board[i][j-1].row = i;
+            board[i][j-1].col = j-1;
+            board[i][j-1].square = toCN(i, j-1);
+        }
     }
 
     let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
