@@ -1,6 +1,5 @@
 import { fromCN, toCN } from '/js/CN.js';
 import { board } from '/js/board.js';
-import { allPieces } from '/js/game.js';
 
 export let pawnInitialSquares = {};
 pawnInitialSquares['white'] = ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'];
@@ -21,23 +20,199 @@ class Piece {
     }
 
     kingCheck() {
-        let controlledSquares = [];
+        let i, j;
 
-        allPieces.forEach(piece => {
-            if (piece.color !== this.color) {
-                controlledSquares.push(...piece.legalMoves);
-            }
-        })
-
-        allPieces.forEach(piece => {
-            if (piece.color === this.color && piece.type === 'King') {
-                if (controlledSquares.includes(piece.square)) {
-                    return true;
+        for (let t_i=0; t_i<8; t_i++) {
+            for (let t_j=0; t_j<8; t_j++) {
+                if (board[t_i][t_j].type === 'King') {
+                    if (board[t_i][t_j].color === this.color) {
+                        i = t_i; j = t_j;
+                        break;
+                    }
                 }
             }
-        })
+        }
+
+        // Checking The Diagonals:
+        for (let k=1; k<=8; k++) {
+            if (valid(i+k, j+k) && board[i+k][j+k] !== '') {
+                if (board[i+k][j+k].color !== this.color)
+                    if ((board[i+k][j+k].type === 'Bishop') || (board[i+k][j+k].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+        for (let k=1; k<=8; k++) {
+            if (valid(i+k, j-k) && board[i+k][j-k] !== '') {
+                if (board[i+k][j-k].color !== this.color)
+                    if ((board[i+k][j-k].type === 'Bishop') || (board[i+k][j-k].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+        for (let k=1; k<=8; k++) {
+            if (valid(i-k, j+k) && board[i-k][j+k] !== '') {
+                if (board[i-k][j+k].color !== this.color)
+                    if ((board[i-k][j+k].type === 'Bishop') || (board[i-k][j+k].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+        for (let k=1; k<=8; k++) {
+            if (valid(i-k, j-k) && board[i-k][j-k] !== '') {
+                if (board[i-k][j-k].color !== this.color)
+                    if ((board[i-k][j-k].type === 'Bishop') || (board[i-k][j-k].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+
+        // Checking The Files & Ranks:
+        for (let k=1; k<=8; k++) {
+            if (valid(i+k, j) && board[i+k][j] !== '') {
+                if (board[i+k][j].color !== this.color)
+                    if ((board[i+k][j].type === 'Rook') || (board[i+k][j].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+        for (let k=1; k<=8; k++) {
+            if (valid(i-k, j) && board[i-k][j] !== '') {
+                if (board[i-k][j].color !== this.color)
+                    if ((board[i-k][j].type === 'Rook') || (board[i-k][j].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+        for (let k=1; k<=8; k++) {
+            if (valid(i, j+k) && board[i][j+k] !== '') {
+                if (board[i][j+k].color !== this.color)
+                    if ((board[i][j+k].type === 'Rook') || (board[i][j+k].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+        for (let k=1; k<=8; k++) {
+            if (valid(i, j-k) && board[i][j-k] !== '') {
+                if (board[i][j-k].color !== this.color)
+                    if ((board[i][j-k].type === 'Rook') || (board[i][j-k].type === 'Queen'))
+                        return true;
+                break;
+            }
+        }
+
+        // Checking The Knight Moves:
+        if (valid(i+1, j+2) && board[i+1][j+2] !== '')
+            if (board[i+1][j+2].color !== this.color)
+                if (board[i+1][j+2].type === 'Knight')
+                    return true;
+        if (valid(i+1, j-2) && board[i+1][j-2] !== '')
+            if (board[i+1][j-2].color !== this.color)
+                if (board[i+1][j-2].type === 'Knight')
+                    return true;
+        if (valid(i-1, j+2) && board[i-1][j+2] !== '')
+            if (board[i-1][j+2].color !== this.color)
+                if (board[i-1][j+2].type === 'Knight')
+                    return true;
+        if (valid(i-1, j-2) && board[i-1][j-2] !== '')
+            if (board[i-1][j-2].color !== this.color)
+                if (board[i-1][j-2].type === 'Knight')
+                    return true;
+        if (valid(i+2, j+1) && board[i+2][j+1] !== '')
+            if (board[i+2][j+1].color !== this.color)
+                if (board[i+2][j+1].type === 'Knight')
+                    return true;
+        if (valid(i-2, j+1) && board[i-2][j+1] !== '')
+            if (board[i-2][j+1].color !== this.color)
+                if (board[i-2][j+1].type === 'Knight')
+                    return true;
+        if (valid(i+2, j-1) && board[i+2][j-1] !== '')
+            if (board[i+2][j-1].color !== this.color)
+                if (board[i+2][j-1].type === 'Knight')
+                    return true;
+        if (valid(i-2, j-1) && board[i-2][j-1] !== '')
+            if (board[i-2][j-1].color !== this.color)
+                if (board[i-2][j-1].type === 'Knight')
+                    return true;
+
+        // Checking The Neighbour Cells:
+        if (valid(i+1, j) && board[i+1][j] !== '')
+            if (board[i+1][j].color !== this.color)
+                if (board[i+1][j].type === 'King')
+                    return true;
+        if (valid(i-1, j) && board[i-1][j] !== '')
+            if (board[i-1][j].color !== this.color)
+                if (board[i-1][j].type === 'King')
+                    return true;
+        if (valid(i+1, j+1) && board[i+1][j+1] !== '')
+            if (board[i+1][j+1].color !== this.color)
+                if (board[i+1][j+1].type === 'King')
+                    return true;
+        if (valid(i, j+1) && board[i][j+1] !== '')
+            if (board[i][j+1].color !== this.color)
+                if (board[i][j+1].type === 'King')
+                    return true;
+        if (valid(i-1, j+1) && board[i-1][j+1] !== '')
+            if (board[i-1][j+1].color !== this.color)
+                if (board[i-1][j+1].type === 'King')
+                    return true;
+        if (valid(i+1, j-1) && board[i+1][j-1] !== '')
+            if (board[i+1][j-1].color !== this.color)
+                if (board[i+1][j-1].type === 'King')
+                    return true;
+        if (valid(i, j-1) && board[i][j-1] !== '')
+            if (board[i][j-1].color !== this.color)
+                if (board[i][j-1].type === 'King')
+                    return true;
+        if (valid(i-1, j-1) && board[i-1][j-1] !== '')
+            if (board[i-1][j-1].color !== this.color)
+                if (board[i-1][j-1].type === 'King')
+                    return true;
+        
+        // Checking for Pawn Attacks:
+        if (this.color === 'black') {
+            if (valid(i+1, j-1) && board[i+1][j-1] !== '')
+                if (board[i+1][j-1].color === 'white')
+                    if (board[i+1][j-1].type === 'Pawn')
+                        return true;
+            if (valid(i+1, j+1) && board[i+1][j+1] !== '')
+                if (board[i+1][j+1].color === 'white')
+                    if (board[i+1][j+1].type === 'Pawn')
+                        return true;
+        }
+        if (this.color === 'white') {
+            if (valid(i-1, j-1) && board[i-1][j-1] !== '')
+                if (board[i-1][j-1].color === 'black')
+                    if (board[i-1][j-1].type === 'Pawn')
+                        return true;
+            if (valid(i-1, j+1) && board[i-1][j+1] !== '')
+                if (board[i-1][j+1].color === 'black')
+                    if (board[i-1][j+1].type === 'Pawn')
+                        return true;
+        }
 
         return false;
+    }
+
+    addLegalMovesDirection(opp1, opp2) {
+        let i = this.row;
+        let j = this.col;
+        for (let k=1; k<=8; k++) {
+            let p1, p2;
+            switch (opp1) {
+                case '+': p1 = i + k; break;
+                case '-': p1 = i - k; break;
+                case '' : p1 = i; break;
+            }
+            switch (opp2) {
+                case '+': p2 = j + k; break;
+                case '-': p2 = j - k; break;
+                case '' : p2 = j; break;
+            }
+            this.addLegalMove(p1, p2);
+            if (valid(p1, p2) && board[p1][p2] !== '')
+                    break;
+        }
     }
 
     addLegalMovesDirection(opp1, opp2) {
@@ -240,7 +415,7 @@ export class Pawn extends Piece {
         // Pawn Capture:
         if (valid(p1i, p1j-1))
             if ((board[p1i][p1j-1] !== '') && (board[p1i][p1j-1].color !== this.color))
-                this.addLegalMove(p2i, p2j);
+                this.addLegalMove(p1i, p1j-1);
         if (valid(p1i, p1j+1))
             if ((board[p1i][p1j+1] !== '') && (board[p1i][p1j+1].color !== this.color))
                 this.addLegalMove(p1i, p1j+1);
@@ -254,7 +429,7 @@ export class Pawn extends Piece {
                         board[this.row][this.col] = '';
                         board[this.row][p1j-1] = '';
                         board[p1i][p1j-1] = this;
-                        this.addLegalMove(p1i, p1j-1);
+                        if (!this.kingCheck()) this.legalMoves.push(toCN(p1i, p1j-1));
                         board[this.row][this.col] = this;
                         board[this.row][p1j-1] = enPassantPawn;
                         board[p1i][p1j-1] = '';
@@ -270,7 +445,7 @@ export class Pawn extends Piece {
                         board[this.row][this.col] = '';
                         board[this.row][p1j+1] = '';
                         board[p1i][p1j+1] = this;
-                        this.addLegalMove(p1i, p1j+1);
+                        if (!this.kingCheck()) this.legalMoves.push(toCN(p1i, p1j+1));
                         board[this.row][this.col] = this;
                         board[this.row][p1j+1] = enPassantPawn;
                         board[p1i][p1j+1] = '';
