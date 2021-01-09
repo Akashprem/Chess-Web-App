@@ -65,18 +65,24 @@ class Piece {
         // check if square is within the bounds:
         if (valid(p1, p2)) {
             if ((board[p1][p2] === '') ||
-                (board[p1][p2] !== '' && board[p1][p2].color !== this.color)) {                
+                (board[p1][p2] !== '' && board[p1][p2].color !== this.color)) {
                 let oldSquare = this.square;
                 let newSquare = toCN(p1, p2);
                 let capturedPiece = board[newSquare];
                 board[oldSquare] = '';
                 board[newSquare] = this;
+                this.square = newSquare;
+                this.row = fromCN(newSquare)[0];
+                this.col = fromCN(newSquare)[1];
                 
                 if (!this.kingCheck())
                     this.legalMoves.push(newSquare);
                 
                 board[oldSquare] = this;
                 board[newSquare] = capturedPiece;
+                this.square = oldSquare;
+                this.row = fromCN(oldSquare)[0];
+                this.col = fromCN(oldSquare)[1];
             }
         }
     }
@@ -193,12 +199,12 @@ export class King extends Piece {
         if (!this.hasMoved)
             if (valid(i, j+3) && !board[i][j+3].hasMoved)
                 if (board[i][j+1] === '' && board[i][j+2] === '')
-                    if (!this.kingCheck('') && !this.kingCheck(toCN(i, j+1)))
+                    if (!this.kingCheck() && this.legalMoves.includes(toCN(i, j+1)))
                         this.addLegalMove(i, j+2);
         if (!this.hasMoved)
             if (valid(i, j-4) && !board[i][j-4].hasMoved)
                 if (board[i][j-1] === '' && board[i][j-2] === '' && board[i][j-3] === '')
-                    if (!this.kingCheck('') && !this.kingCheck(toCN(i, j-1)))
+                    if (!this.kingCheck() && this.legalMoves.includes(toCN(i, j-1)))
                         this.addLegalMove(i, j-2);
 
         this.legalMoves = [...new Set(this.legalMoves)];

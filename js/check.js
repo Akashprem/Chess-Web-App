@@ -1,7 +1,7 @@
 export function checkCheck(allPieces) {
     let color = null;
     allPieces.forEach(piece => {
-        if (piece.type === 'King' && piece.kingCheck('')) {
+        if (piece.type === 'King' && piece.kingCheck()) {
             let cell = document.getElementById(piece.row + ' ' + piece.col).parentElement;
             cell.style.backgroundColor = 'rgb(255, 0, 0)';
             color = piece.color;

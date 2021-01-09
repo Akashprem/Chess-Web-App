@@ -33,6 +33,7 @@ allPieces.forEach(elem => {
 });
 
 function drawBoard() {
+    console.log(allPieces);
     allPieces.forEach(elem => elem.updateLegalMoves());
     for (let i=0; i<8; i++) {
         for (let j=0; j<8; j++) {
@@ -244,9 +245,11 @@ export function makeMove(board, piece, i, j, draw=true) {
         }
     }
 
-    let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
-    let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
-    allPieces = left.concat(right);
+    if (capturedPiece) {
+        let left = allPieces.slice(0, allPieces.indexOf(capturedPiece));
+        let right = allPieces.slice(allPieces.indexOf(capturedPiece)+1);
+        allPieces = left.concat(right);
+    }
 
     if (draw) drawBoard();
     checkCheck(allPieces);
